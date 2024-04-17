@@ -10,7 +10,7 @@ namespace api.Interfaces
 
         Task<Nightlight?> GetNightlightByIdAsync(int id);
 
-        Task<Nightlight> CreateNightlightAsync(Nightlight nightlight);
+        Task<Nightlight> CreateNightlightAsync(CreateNightlightRequestDto nightlightRequestdto);
 
         Task<Nightlight?> UpdateNightlightAsync(UpdateNightlightRequestDto nightlightRequestDto, int id);
 

@@ -1,8 +1,9 @@
 using api.Dtos.Nightlight;
 using api.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using api.Mappers;
 using api.Helpers;
+using api.Mappers.Nightlights;
+using api.Models;
 
 namespace api.Controllers
 {
@@ -20,7 +21,8 @@ namespace api.Controllers
         public async Task<IActionResult> GetItems([FromQuery] QueryObject queryObject)
         {
             var nightlights = await nightlightRepository.GetNightlightsAsync(queryObject);
-            return Ok(nightlights);
+            var nightlightDtos = nightlights.ToGetDtoFromNightlight();
+            return Ok(nightlightDtos);
         }
 
         [HttpGet]
@@ -28,11 +30,10 @@ namespace api.Controllers
         public async Task<IActionResult> GetItemById([FromRoute] int id)
         {
             var nightlight = await nightlightRepository.GetNightlightByIdAsync(id);
-            if (nightlight is null)
-            {
-                return NotFound();
-            }
-            return Ok(nightlight);
+            if (nightlight is null) return NotFound();
+
+            var nightlightDtos = nightlight.ToGetDtoFromNightlight();
+            return Ok(nightlightDtos);
         }
         [HttpPut]
         [Route("{id:int}")]
@@ -42,11 +43,10 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             
             var nightlight = await nightlightRepository.UpdateNightlightAsync(nightlightRequestDto, id);
-            if (nightlight is null)
-            {
-                return NotFound();
-            }
-            return Ok(nightlight);
+            if (nightlight is null) return NotFound();
+
+            var nightlightDtos = nightlight.ToGetDtoFromNightlight();
+            return Ok(nightlightDtos);
         }
 
         [HttpDelete]
@@ -65,10 +65,10 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
-            var nightlight = createNightlightRequestDto.ToNightlightFromCreateDto();
-            await nightlightRepository.CreateNightlightAsync(nightlight);
-            return CreatedAtAction(nameof(GetItemById), new {id = nightlight.Id});
+
+            var nightlight = await nightlightRepository.CreateNightlightAsync(createNightlightRequestDto);
+            var nightlightDtos = nightlight.ToGetDtoFromNightlight();
+            return Ok(nightlightDtos);
         }
     }
 }

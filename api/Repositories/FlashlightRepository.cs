@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Flashlight;
 using api.Helpers;
 using api.Interfaces;
+using api.Mappers.Flashlights;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace api.Repositories
 {
@@ -19,8 +16,14 @@ namespace api.Repositories
         {
             this.context = context;
         }
-        public async Task<Flashlight> CreateFlashlightAsync(Flashlight flashlight)
+        public async Task<Flashlight> CreateFlashlightAsync(CreateFlashlightRequestDto flashlightRequestDto)
         {
+            var flashlight = flashlightRequestDto.ToFlashlightFromCreateDto();
+            foreach (var item in flashlightRequestDto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == item);
+                if(tag is not null) flashlight.Tags.Add(tag);
+            }
             await context.Flashlights.AddAsync(flashlight);
             await context.SaveChangesAsync();
             return flashlight;
@@ -28,8 +31,8 @@ namespace api.Repositories
 
         public async Task<Flashlight?> GetFlashlightByIdAsync(int id)
         {
-            var flashlight = await context.Flashlights.FindAsync(id);
-            if (flashlight == null)
+            var flashlight = await context.Flashlights.Include(t => t.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            if (flashlight is null)
             {
                 return null;
             }
@@ -38,7 +41,7 @@ namespace api.Repositories
 
         public async Task<List<Flashlight>> GetFlashlightsAsync(QueryObject queryObject)
         {
-            var flashlgihts = context.Flashlights.AsQueryable();
+            var flashlgihts = context.Flashlights.Include(t => t.Tags).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
             {
@@ -58,8 +61,8 @@ namespace api.Repositories
 
         public async Task<Flashlight?> RemoveFlashlight(int id)
         {
-            var flashlight = await context.Flashlights.FirstOrDefaultAsync(t => t.Id == id);
-            if (flashlight == null)
+            var flashlight = await context.Flashlights.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == id);
+            if (flashlight is null)
             {
                 return null;
             }
@@ -68,20 +71,31 @@ namespace api.Repositories
             return flashlight;
         }
 
-        public async Task<Flashlight?> UpdateFlashlightAsync(UpdateFlashlightRequestDto flashlightrequestDto, int id)
+        public async Task<Flashlight?> SearchForFlashlight(string name)
         {
-            var flashlight = await context.Flashlights.FirstOrDefaultAsync(t => t.Id == id);
-            if (flashlight == null)
+            var flashlight = await context.Flashlights.FirstOrDefaultAsync(t => t.Name.Contains(name));
+            if (flashlight is null)
             {
                 return null;
             }
-            flashlight.Name = flashlightrequestDto.Name;
-            flashlight.Description = flashlightrequestDto.Description;
-            flashlight.PicLink = flashlightrequestDto.PicLink;
-            flashlight.Company = flashlightrequestDto.Company;
-            flashlight.Cost = flashlightrequestDto.Cost;
-            flashlight.Version = flashlightrequestDto.Version;
+            return flashlight;
+        }
 
+        public async Task<Flashlight?> UpdateFlashlightAsync(UpdateFlashlightRequestDto flashlightrequestDto, int id)
+        {
+            var flashlight = await context.Flashlights.Include(t => t.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            if (flashlight is null)
+            {
+                return null;
+            }
+            foreach (var item in flashlightrequestDto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(x => x.Id == item);
+                if (tag is not null) 
+                    flashlight.Tags.Add(tag);  
+            }
+            flashlight = flashlightrequestDto.ToFlashlightFromUpdateDto(flashlight);
+                        
             context.Flashlights.Update(flashlight);
             await context.SaveChangesAsync();
             return flashlight;

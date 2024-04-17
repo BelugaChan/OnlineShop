@@ -10,7 +10,7 @@ namespace api.Interfaces
 
         Task<Lustre?> GetItemByIdAsync(int id);
 
-        Task<Lustre> CreateItemAsync(Lustre lustre);
+        Task<Lustre> CreateItemAsync(CreateLustreRequestDto lustreRequestDto);
 
         Task<Lustre?> UpdateItemAsync(int id, UpdateLustreRequestDto lustreDto);
 

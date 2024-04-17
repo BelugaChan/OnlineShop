@@ -14,6 +14,8 @@ namespace api.Interfaces
 
         Task<Flashlight?> RemoveFlashlight(int id);
 
-        Task<Flashlight> CreateFlashlightAsync (Flashlight flashlight);
+        Task<Flashlight> CreateFlashlightAsync (CreateFlashlightRequestDto flashlight);
+
+        Task<Flashlight?> SearchForFlashlight(string name);
     }
 }

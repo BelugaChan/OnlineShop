@@ -2,6 +2,7 @@
 using api.Dtos.Lustre;
 using api.Helpers;
 using api.Interfaces;
+using api.Mappers.Lustres;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ namespace api.Repositories
 
         public async Task<List<Lustre>> GetAllAsync(QueryObject queryObject)
         {
-            var lustres = context.Lustres.AsQueryable();
+            var lustres = context.Lustres.Include(t => t.Tags).AsQueryable();
             if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
             {
                 lustres = lustres.Where(t => t.Name.Contains(queryObject.ItemName));
@@ -35,11 +36,19 @@ namespace api.Repositories
 
         public async Task<Lustre?> GetItemByIdAsync(int id)
         {
-            return await context.Lustres.FindAsync(id);
+            var lustre = await context.Lustres.Include(t => t.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            if (lustre is null) return null;
+            return lustre;
         }
 
-        public async Task<Lustre> CreateItemAsync(Lustre lustre)
+        public async Task<Lustre> CreateItemAsync(CreateLustreRequestDto lustreRequestDto)
         {
+            var lustre = lustreRequestDto.ToLustreFromCreateDto();
+            foreach (var item in lustreRequestDto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == item);
+                if (tag is not null) lustre.Tags.Add(tag);
+            }
             await context.Lustres.AddAsync(lustre);
             await context.SaveChangesAsync();
             return lustre;
@@ -48,29 +57,25 @@ namespace api.Repositories
         public async Task<Lustre?> DeleteItemAsync(int id)
         {
             var lustre = await context.Lustres.FirstOrDefaultAsync(t => t.Id == id);
-            if (lustre == null)
-            {
-                return null;
-            }
+            if (lustre is null) return null;
+
             context.Lustres.Remove(lustre);
             await context.SaveChangesAsync();
             return lustre;
         }
 
-        public async Task<Lustre?> UpdateItemAsync(int id, UpdateLustreRequestDto lustreDto)
+        public async Task<Lustre?> UpdateItemAsync(int id, UpdateLustreRequestDto lustrerequestDto)
         {
-            var lustre = await context.Lustres.FirstOrDefaultAsync(t => t.Id == id);
-            if (lustre == null)
+            var lustre = await context.Lustres.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == id);
+            if (lustre is null) return null;
+
+            foreach (var item in lustrerequestDto.TagIds)
             {
-                return null;
+                var tag = await context.Tags.FirstOrDefaultAsync(x => x.Id == item);
+                if (tag is not null)
+                    lustre.Tags.Add(tag);
             }
-            lustre.Name = lustreDto.Name;
-            lustre.Description = lustreDto.Description;
-            lustre.PicLink = lustreDto.PicLink;
-            lustre.Cost = lustreDto.Cost;
-            lustre.Company = lustreDto.Company;
-            lustre.BulbCount = lustreDto.BulbCount;
-            lustre.Weight = lustreDto.Weight;
+            lustre = lustrerequestDto.ToLustreFromUpdateDto(lustre);
 
             context.Lustres.Update(lustre);
             await context.SaveChangesAsync();

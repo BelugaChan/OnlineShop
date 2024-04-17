@@ -51,13 +51,13 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "47762dd0-898e-4d24-b54a-14450b537da1",
+                            Id = "3c903fc7-dd16-4641-825e-8a08d495ebcc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "44822a3e-cda9-4c56-96c2-071441429fae",
+                            Id = "a45904ba-95ca-4252-acd7-6a4c5a303e33",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -169,53 +169,28 @@ namespace api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("api.Models.Flashlight", b =>
+            modelBuilder.Entity("ProductTag", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("ProductsId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("ProductsId", "TagsId");
 
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
+                    b.HasIndex("TagsId");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PicLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Flashlights");
+                    b.ToTable("ProductsTagsComparer", (string)null);
                 });
 
-            modelBuilder.Entity("api.Models.Lamps", b =>
+            modelBuilder.Entity("api.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
@@ -232,15 +207,14 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Power")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Lamps");
+                    b.ToTable("Products", (string)null);
+
+                    b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("api.Models.Lustre", b =>
+            modelBuilder.Entity("api.Models.Tag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -248,73 +222,13 @@ namespace api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BulbCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PicLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Lustres");
-                });
-
-            modelBuilder.Entity("api.Models.Nightlight", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("CountryProduction")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ExpirationDate")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PicLink")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Nightlights");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>
@@ -388,6 +302,70 @@ namespace api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("api.Models.Flashlight", b =>
+                {
+                    b.HasBaseType("api.Models.Product");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Flashlights", (string)null);
+                });
+
+            modelBuilder.Entity("api.Models.Lamp", b =>
+                {
+                    b.HasBaseType("api.Models.Product");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Power")
+                        .HasColumnType("int");
+
+                    b.ToTable("Lamps", (string)null);
+                });
+
+            modelBuilder.Entity("api.Models.Lustre", b =>
+                {
+                    b.HasBaseType("api.Models.Product");
+
+                    b.Property<int>("BulbCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
+
+                    b.ToTable("Lustres", (string)null);
+                });
+
+            modelBuilder.Entity("api.Models.Nightlight", b =>
+                {
+                    b.HasBaseType("api.Models.Product");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryProduction")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ExpirationDate")
+                        .HasColumnType("int");
+
+                    b.ToTable("Nightlights", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -435,6 +413,57 @@ namespace api.Migrations
                     b.HasOne("api.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductTag", b =>
+                {
+                    b.HasOne("api.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("api.Models.Flashlight", b =>
+                {
+                    b.HasOne("api.Models.Product", null)
+                        .WithOne()
+                        .HasForeignKey("api.Models.Flashlight", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("api.Models.Lamp", b =>
+                {
+                    b.HasOne("api.Models.Product", null)
+                        .WithOne()
+                        .HasForeignKey("api.Models.Lamp", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("api.Models.Lustre", b =>
+                {
+                    b.HasOne("api.Models.Product", null)
+                        .WithOne()
+                        .HasForeignKey("api.Models.Lustre", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("api.Models.Nightlight", b =>
+                {
+                    b.HasOne("api.Models.Product", null)
+                        .WithOne()
+                        .HasForeignKey("api.Models.Nightlight", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

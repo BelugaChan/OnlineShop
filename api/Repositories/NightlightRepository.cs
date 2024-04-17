@@ -8,6 +8,8 @@ using api.Helpers;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+using api.Mappers;
+using api.Mappers.Nightlights;
 
 namespace api.Repositories
 {
@@ -18,8 +20,14 @@ namespace api.Repositories
         {
             this.context = context;
         }
-        public async Task<Nightlight> CreateNightlightAsync(Nightlight nightlight)
+        public async Task<Nightlight> CreateNightlightAsync(CreateNightlightRequestDto nightlightRequestdto)
         {
+            var nightlight = nightlightRequestdto.ToNightlightFromCreateDto();
+            foreach (var item in nightlightRequestdto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == item);
+                if (tag is not null) nightlight.Tags.Add(tag);
+            }
             await context.Nightlights.AddAsync(nightlight);
             await context.SaveChangesAsync();
             return nightlight;
@@ -27,17 +35,14 @@ namespace api.Repositories
 
         public async Task<Nightlight?> GetNightlightByIdAsync(int id)
         {
-            var nightlight = await context.Nightlights.FindAsync(id);
-            if (nightlight == null)
-            {
-                return null;
-            }
+            var nightlight = await context.Nightlights.Include(t => t.Tags).FirstOrDefaultAsync(x => x.Id == id);
+            if (nightlight is null) return null;
             return nightlight;
         }
 
         public async Task<List<Nightlight>> GetNightlightsAsync(QueryObject queryObject)
         {
-            var nightlights = context.Nightlights.AsQueryable();
+            var nightlights = context.Nightlights.Include(t => t.Tags).AsQueryable();
             if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
             {
                 nightlights = nightlights.Where(t => t.Name.Contains(queryObject.ItemName));
@@ -56,10 +61,8 @@ namespace api.Repositories
         public async Task<Nightlight?> RemoveNightlight(int id)
         {
             var nightlight = await context.Nightlights.FindAsync(id);
-            if (nightlight == null)
-            {
-                return null;
-            }
+            if (nightlight is null) return null;
+
             context.Nightlights.Remove(nightlight);
             await context.SaveChangesAsync();
             return nightlight;
@@ -67,18 +70,17 @@ namespace api.Repositories
 
         public async Task<Nightlight?> UpdateNightlightAsync(UpdateNightlightRequestDto nightlightRequestDto, int id)
         {
-             var nightlight = await context.Nightlights.FindAsync(id);
-            if (nightlight == null)
+            var nightlight = await context.Nightlights.FindAsync(id);
+            if (nightlight is null) return null;
+
+            foreach (var item in nightlightRequestDto.TagIds)
             {
-                return null;
+                var tag = await context.Tags.FirstOrDefaultAsync(x => x.Id == item);
+                if (tag is not null)
+                    nightlight.Tags.Add(tag);
             }
-            nightlight.Name = nightlightRequestDto.Name;
-            nightlight.Description = nightlightRequestDto.Description;
-            nightlight.PicLink = nightlightRequestDto.PicLink;
-            nightlight.Cost = nightlightRequestDto.Cost;
-            nightlight.Company = nightlightRequestDto.Company;
-            nightlight.CountryProduction = nightlightRequestDto.CountryProduction;
-            nightlight.ExpirationDate = nightlightRequestDto.ExpirationDate;
+            nightlight = nightlightRequestDto.ToNightlightFromUpdateDto(nightlight);
+
             context.Nightlights.Update(nightlight);
             await context.SaveChangesAsync();
             return nightlight;

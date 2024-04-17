@@ -1,7 +1,7 @@
 using api.Dtos.Lustre;
 using api.Helpers;
 using api.Interfaces;
-using api.Mappers;
+using api.Mappers.Lustres;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -20,7 +20,8 @@ namespace api.Controllers
         public async Task<IActionResult> GetAll([FromQuery] QueryObject queryObject)
         {
             var lustres = await lustreRepository.GetAllAsync(queryObject);
-            return Ok(lustres);
+            var lustresDto = lustres.ToGetDtoFromLustre();
+            return Ok(lustresDto);
         }
 
         [HttpGet]
@@ -28,39 +29,33 @@ namespace api.Controllers
         public async Task<IActionResult> GetItem([FromRoute] int id)
         {
             var lustre = await lustreRepository.GetItemByIdAsync(id);
+            if (lustre is null) return NotFound();
 
-            if (lustre is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(lustre);
+            var lustreDto = lustre.ToGetDtoFromLustre();
+            return Ok(lustreDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] CreateLustreRequestDto lustreDto)
+        public async Task<IActionResult> CreateItem([FromBody] CreateLustreRequestDto lustreRequestDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            
-            var lustreItem = lustreDto.ToLustreFromCreateDto();
-            await lustreRepository.CreateItemAsync(lustreItem);
-            return CreatedAtAction(nameof(GetItem), new {id = lustreItem.Id});
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var lustre = await lustreRepository.CreateItemAsync(lustreRequestDto);
+            var lustreDto = lustre.ToGetDtoFromLustre();
+            return Ok(lustreDto);
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] UpdateLustreRequestDto lustreDto)
+        public async Task<IActionResult> UpdateItem([FromRoute] int id, [FromBody] UpdateLustreRequestDto lustreRequestDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            
-            var lustreItem = await lustreRepository.UpdateItemAsync(id, lustreDto);
-            if (lustreItem is null)
-            {
-                return NotFound();
-            }
-            return Ok(lustreItem);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var lustre = await lustreRepository.UpdateItemAsync(id, lustreRequestDto);
+            if (lustre is null) return NotFound();
+
+            var lustreDto = lustre.ToGetDtoFromLustre();
+            return Ok(lustreDto);
         }
 
         [HttpDelete]

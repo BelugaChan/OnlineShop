@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,12 +76,18 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+//add logging
+builder.Host.UseSerilog((context, configuration) => configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .Enrich.WithProperty("ApplicationName", "Online Shop"));
+
 builder.Services.AddScoped<ILustreRepository, LustreRepository>();
 builder.Services.AddScoped<ILampsRepository, LampsRepository>();
 builder.Services.AddScoped<IFlashlightRepository, FlashlightRepository>();
 builder.Services.AddScoped<INightlightRepository, NightlightRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-
+builder.Services.AddScoped<IAlgorithmService, BronKerboschService>();
 
 var app = builder.Build();
 
@@ -92,6 +99,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseSerilogRequestLogging();
 
 app.UseCors(x => x.AllowAnyMethod()
                   .AllowAnyHeader()

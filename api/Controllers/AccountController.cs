@@ -11,11 +11,13 @@ namespace api.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private ILogger<AccountController> logger;
         private ITokenService tokenService;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenService tokenService)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenService tokenService, ILogger<AccountController> logger)
         {
+            this.logger = logger;
             this.userManager = userManager;
             this.tokenService = tokenService;
             this.signInManager = signInManager;
@@ -33,8 +35,10 @@ namespace api.Controllers
 
                 var user = await userManager.Users.FirstOrDefaultAsync(t => t.UserName == loginDto.UserName);
                 if (user is null)
+                {
+                    logger.LogError("username {UserName} is invalid", loginDto.UserName);
                     return Unauthorized("Invalid userName");
-                
+                }                         
                 var result = await signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
                 if(!result.Succeeded)
                     return Unauthorized("username not found and/or password is incorrect");

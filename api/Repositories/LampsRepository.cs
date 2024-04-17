@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Lamp;
 using api.Helpers;
 using api.Interfaces;
+using api.Mappers.Lamps;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,14 +16,20 @@ namespace api.Repositories
             this.context = context;
         }
 
-        public async Task<Lamps> CreateLampAsync(Lamps lamp)
+        public async Task<Lamp> CreateLampAsync(CreateLampRequestDto lampRequestDto)
         {
+            var lamp = lampRequestDto.ToLampFromCreateDto();
+            foreach (var item in lampRequestDto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == item);
+                if (tag is not null) lamp.Tags.Add(tag);
+            }
             await context.Lamps.AddAsync(lamp);
             await context.SaveChangesAsync();
             return lamp;
         }
 
-        public async Task<Lamps?> DeleteLampAsync(int id)
+        public async Task<Lamp?> DeleteLampAsync(int id)
         {
             var lamp = await context.Lamps.FirstOrDefaultAsync(t => t.Id == id);
             if (lamp == null)
@@ -38,9 +41,9 @@ namespace api.Repositories
             return lamp;
         }
 
-        public async Task<List<Lamps>> GetAllAsync(QueryObject queryObject)
+        public async Task<List<Lamp>> GetAllAsync(QueryObject queryObject)
         {
-            var lamps = context.Lamps.AsQueryable();
+            var lamps = context.Lamps.Include(t => t.Tags).AsQueryable();
             if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
             {
                 lamps = lamps.Where(t => t.Name.Contains(queryObject.ItemName));
@@ -56,24 +59,31 @@ namespace api.Repositories
             return await lamps.ToListAsync();
         }
 
-        public async Task<Lamps?> GetLampByIdAsync(int id)
+        public async Task<Lamp?> GetLampByIdAsync(int id)
         {
-            return await context.Lamps.FindAsync(id);
-        }
-
-        public async Task<Lamps?> UpdateLampAsync(int id, UpdateLampRequestDto lampRequestDto)
-        {
-            var lamp = await context.Lamps.FirstOrDefaultAsync(t => t.Id == id);
-            if (lamp == null)
+            var lamp = await context.Lamps.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == id);
+            if (lamp is null)
             {
                 return null;
             }
-            lamp.Name = lampRequestDto.Name;
-            lamp.Description = lampRequestDto.Description;
-            lamp.PicLink = lampRequestDto.PicLink;
-            lamp.Company = lampRequestDto.Company;
-            lamp.Cost = lampRequestDto.Cost;
-            lamp.Power = lampRequestDto.Power;
+            return lamp;
+        }
+
+        public async Task<Lamp?> UpdateLampAsync(int id, UpdateLampRequestDto lampRequestDto)
+        {
+            var lamp = await context.Lamps.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == id);
+            if (lamp is null)
+            {
+                return null;
+            }
+
+            foreach (var item in lampRequestDto.TagIds)
+            {
+                var tag = await context.Tags.FirstOrDefaultAsync(x => x.Id == item);
+                if (tag is not null)
+                    lamp.Tags.Add(tag);
+            }
+            lamp = lampRequestDto.ToLampFromUpdateDto(lamp);
 
             context.Lamps.Update(lamp);
             await context.SaveChangesAsync();

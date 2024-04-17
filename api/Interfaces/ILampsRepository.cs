@@ -1,3 +1,4 @@
+using api.Dtos.Flashlight;
 using api.Dtos.Lamp;
 using api.Helpers;
 using api.Models;
@@ -6,14 +7,14 @@ namespace api.Interfaces
 {
     public interface ILampsRepository
     {
-        Task<List<Lamps>> GetAllAsync(QueryObject queryObject);
+        Task<List<Lamp>> GetAllAsync(QueryObject queryObject);
 
-        Task<Lamps?> GetLampByIdAsync(int id);
+        Task<Lamp?> GetLampByIdAsync(int id);
 
-        Task<Lamps?> UpdateLampAsync(int id, UpdateLampRequestDto lampRequestDto);
+        Task<Lamp?> UpdateLampAsync(int id, UpdateLampRequestDto lampRequestDto);
 
-        Task<Lamps> CreateLampAsync(Lamps lamp);
+        Task<Lamp> CreateLampAsync(CreateLampRequestDto lampRequestDto);
 
-        Task<Lamps?> DeleteLampAsync(int id);
+        Task<Lamp?> DeleteLampAsync(int id);
     }
 }
