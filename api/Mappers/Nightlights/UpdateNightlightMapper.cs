@@ -1,5 +1,4 @@
-﻿using api.Dtos.Lustre;
-using api.Dtos.Nightlight;
+﻿using api.Dtos.Nightlights;
 using api.Models;
 
 namespace api.Mappers.Nightlights

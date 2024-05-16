@@ -1,7 +1,6 @@
-﻿using api.Dtos.Flashlight;
+﻿using api.Dtos.Flashlights;
 using api.Models;
-using Microsoft.Identity.Client;
-using System.Linq;
+
 
 namespace api.Mappers.Flashlights
 {

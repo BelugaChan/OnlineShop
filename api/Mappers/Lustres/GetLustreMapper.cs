@@ -1,5 +1,4 @@
-﻿using api.Dtos.Lamp;
-using api.Dtos.Lustre;
+﻿using api.Dtos.Lustres;
 using api.Models;
 
 namespace api.Mappers.Lustres

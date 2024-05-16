@@ -1,5 +1,6 @@
 using api.Data;
-using api.Interfaces;
+using api.Interfaces.Repositories;
+using api.Interfaces.Services;
 using api.Models;
 using api.Repositories;
 using api.Service;
@@ -12,12 +13,16 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.WebHost.UseUrls(new[] { "https://localhost:5002" });
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
+builder.Services.AddSwaggerGen(options =>
+{
     options.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -72,7 +77,7 @@ builder.Services.AddAuthentication(options => {
         IssuerSigningKey = new SymmetricSecurityKey(
             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
         ),
-        ClockSkew = new TimeSpan(0, 0, 5)
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -81,13 +86,17 @@ builder.Host.UseSerilog((context, configuration) => configuration
             .ReadFrom.Configuration(context.Configuration)
             .Enrich.WithProperty("ApplicationName", "Online Shop"));
 
+//repositories
 builder.Services.AddScoped<ILustreRepository, LustreRepository>();
 builder.Services.AddScoped<ILampsRepository, LampsRepository>();
 builder.Services.AddScoped<IFlashlightRepository, FlashlightRepository>();
 builder.Services.AddScoped<INightlightRepository, NightlightRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+//services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAlgorithmService, BronKerboschService>();
+builder.Services.AddScoped<IFlashlightConverterService, FlashlightConverterService>();
 
 var app = builder.Build();
 
@@ -96,9 +105,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseWebAssemblyDebugging();
 }
 
 app.UseHttpsRedirection();
+
+//blazor stuff
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
 app.UseSerilogRequestLogging();
 
@@ -111,6 +125,8 @@ app.UseCors(x => x.AllowAnyMethod()
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapRazorPages();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

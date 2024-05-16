@@ -1,7 +1,9 @@
-using api.Dtos.Flashlight;
+using api.Dtos.Flashlights;
 using api.Helpers;
-using api.Interfaces;
+using api.Interfaces.Repositories;
+using api.Interfaces.Services;
 using api.Mappers.Flashlights;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -12,16 +14,22 @@ namespace api.Controllers
     {
         private ILogger<FlashlightController> logger;
         private readonly IFlashlightRepository flashlightRepository;
+        private readonly IAlgorithmService algorithmService;
+        private readonly IFlashlightConverterService flashlightConverterService;
 
         public FlashlightController(IFlashlightRepository flashlightRepository,
-        ILogger<FlashlightController> logger)
+        ILogger<FlashlightController> logger, IAlgorithmService algorithmService,
+        IFlashlightConverterService flashlightConverterService)
         {
             this.flashlightRepository = flashlightRepository;
             this.logger = logger;
+            this.algorithmService = algorithmService;
+            this.flashlightConverterService = flashlightConverterService;
         }
 
         [HttpGet]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> GetItem([FromRoute] int id)
         {
             var flashlight = await flashlightRepository.GetFlashlightByIdAsync(id);         
@@ -35,14 +43,27 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] QueryObject queryObject)
+        [Route("{name}")]
+        public async Task<IActionResult> GetItemByName([FromRoute] string name)
         {
-            var flashlights = await flashlightRepository.GetFlashlightsAsync(queryObject);
+            var flashlight = await flashlightRepository.SearchForFlashlight(name);
+            if (flashlight is null) return NotFound();
+
+            var flashlightDto = flashlight.ToGetDtoFromFlashlight();
+
+            return Ok(flashlightDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(/*[FromQuery] QueryObject queryObject*/)
+        {
+            var flashlights = await flashlightRepository.GetFlashlightsAsync(/*queryObject*/);
             var flashlightsDtos = flashlights.ToGetDtoFromFlashlight();
             return Ok(flashlightsDtos);
         }
 
         [HttpPost]
+        [Route("Create")]
         public async Task<IActionResult> CreateItem([FromBody] CreateFlashlightRequestDto flashlightRequestDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -79,6 +100,26 @@ namespace api.Controllers
             logger.LogInformation("flashlight with {id} was deleted", id);
 
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("Search")]
+        public async Task<IActionResult> SearchAmongTags([FromBody] List<string> searchTags)
+        {
+            var flashlights = await flashlightRepository.GetFlashlightsAsync();
+
+            var items = flashlightConverterService.SearcherForFlashlights(flashlights);
+            var data = algorithmService.GetData(searchTags, items);
+            var res = flashlightConverterService.GetFlashlightsForTagSearch(data, flashlights);
+            return Ok(res);
+        }
+
+        [HttpGet]
+        [Route("Tags")]
+        public async Task<IActionResult> GetAllTags()
+        {
+            var tags = await flashlightRepository.GetFlashlightsTags();
+            return Ok(tags);
         }
     }
 }

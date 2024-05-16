@@ -1,0 +1,65 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\obj\\Debug\\net8.0\\compressed\\6o78sylohs.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\obj\\Debug\\net8.0\\scopedcss\\bundle\\BlazorClient.styles.css",
+      "PackagePath": "staticwebassets\\BlazorClient.styles.css"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\css\\font.css",
+      "PackagePath": "staticwebassets\\css\\font.css"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\css\\style.css",
+      "PackagePath": "staticwebassets\\css\\style.css"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\img\\1679137763_design-pibig-info-p-p.jpg",
+      "PackagePath": "staticwebassets\\img\\1679137763_design-pibig-info-p-p.jpg"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\img\\5e568723b8ad397bb817a5344cc804bb.jpg",
+      "PackagePath": "staticwebassets\\img\\5e568723b8ad397bb817a5344cc804bb.jpg"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\img\\svetilniki_0.jpg",
+      "PackagePath": "staticwebassets\\img\\svetilniki_0.jpg"
+    },
+    {
+      "Id": "D:\\uFiler\\LustreShopFeatures\\BlazorClient\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BlazorClient.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.BlazorClient.props",
+      "PackagePath": "build\\BlazorClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.BlazorClient.props",
+      "PackagePath": "buildMultiTargeting\\BlazorClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.BlazorClient.props",
+      "PackagePath": "buildTransitive\\BlazorClient.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

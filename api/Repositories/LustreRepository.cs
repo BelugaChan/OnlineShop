@@ -1,7 +1,7 @@
 ﻿using api.Data;
-using api.Dtos.Lustre;
+using api.Dtos.Lustres;
 using api.Helpers;
-using api.Interfaces;
+using api.Interfaces.Repositories;
 using api.Mappers.Lustres;
 using api.Models;
 using Microsoft.EntityFrameworkCore;

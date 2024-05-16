@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
-using api.Dtos.Nightlight;
+using api.Dtos.Nightlights;
 using api.Helpers;
-using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 using api.Mappers;
 using api.Mappers.Nightlights;
+using api.Interfaces.Repositories;
 
 namespace api.Repositories
 {

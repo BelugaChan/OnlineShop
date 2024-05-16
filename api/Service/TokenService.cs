@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using api.Interfaces;
+using api.Interfaces.Services;
 using api.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,7 +31,7 @@ namespace api.Service
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                Subject = new ClaimsIdentity(claims),
-               Expires = DateTime.Now.AddHours(2),
+               Expires = DateTime.Now.AddSeconds(20),
                SigningCredentials = credentials,
                Issuer = configuration["JWT:Issuer"],
                Audience = configuration["JWT:Audience"] 

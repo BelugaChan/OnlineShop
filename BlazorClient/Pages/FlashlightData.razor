@@ -1,0 +1,70 @@
+﻿@page "/FlashlightData/{FlashlightName}"
+
+
+@if (CurrentFlashlight is not null)
+{
+    <div class="row align-items-center">
+        <div class="col-lg-3">
+            <h2 class="text-uppercase" id="item-name">@CurrentFlashlight.Name</h2>
+            <h2 class="item-text">Описание:<br> @CurrentFlashlight.Description</h2>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="col-4">
+            <img src="img/svetilniki_0.jpg" alt="no data..." class="img-fluid mb-5 mt-5 " />
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="col-4">
+            <h2 id="item-stats">Характеристики</h2>
+            <ol>
+                <li>Версия: @CurrentFlashlight.Version</li>
+                <li>Компания-производитель: @CurrentFlashlight.Company</li>
+            </ol>
+
+            <h2 id="item-stats">Теги</h2>
+            @if (CurrentFlashlight.TagNames is not null)
+            {
+                <ol>
+                    @foreach (var item in CurrentFlashlight.TagNames)
+                    {
+                        <li>@item</li>
+                    }
+                </ol>               
+            }
+            else
+            {
+                <h1>Тегов нет!</h1>
+            }                           
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-light itd-btn" href="catalog.html">Продолжить покупки</a>
+            <a class="btn btn-light itd-btn" href="#">Добавить в корзину</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-secondary text-center text-uppercase" role="alert">
+        Данные отсутствуют!
+    </div>
+}
+
+
+@code{
+    [Parameter]
+    public string FlashlightName { get; set; }
+
+    public Flashlight? CurrentFlashlight { get; set; }
+
+    [Inject]
+    private IFlashlightProvider FlashlightProvider { get; set;}
+
+    protected async override Task OnInitializedAsync()
+    {
+        CurrentFlashlight = await FlashlightProvider.SearchForFlashlight(FlashlightName);
+        base.OnInitialized();
+    }
+}

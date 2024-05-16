@@ -1,4 +1,4 @@
-﻿using api.Dtos.Flashlight;
+﻿using api.Dtos.Flashlights;
 using api.Models;
 
 namespace api.Mappers.Flashlights

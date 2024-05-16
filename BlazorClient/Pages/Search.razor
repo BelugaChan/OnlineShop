@@ -1,0 +1,57 @@
+﻿@page "/Flashlights/Search/{searchTags}"
+@using Newtonsoft.Json;
+@using System.Linq;
+@inject NavigationManager navigationManager
+
+<h3>Результаты по запросу:</h3>
+<div class="row">
+    @foreach (var item in flashlights)
+    {
+        <h3>@item.Tags.FirstOrDefault()</h3>
+        @foreach (var value in item.Flashlights)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-90 box-shadow my-3">
+                    <a @onclick="() => ToItem(value)"><img class="card-img-top img-fluid" style="height:225px;width:100%" src=@value.PicLink alt="no data..." /></a>
+                    <div class="card-body">
+                        <div class="card-title text-uppercase">
+                            <a href="" @onclick="() => ToItem(value)" @onclick:preventDefault>@value.Name</a>
+                        </div>
+                        <h5>@value.Cost &#8381;</h5>
+                        <p class="card-text">@value.Description</p>
+                    </div>
+                    <div class="card-body justify-content-around align-items-end d-flex">
+                        <a class="btn itd-btn" href="#" title="Добавить в корзину"><i class="fas fa-shopping-cart ms-1"></i></a>
+                        <a class="btn itd-btn" href="#" title="Сравнить"><i class="fa-solid fa-code-compare me-1"></i></a>
+                        <a class="btn itd-btn" href="#" title="Избранное"><i class="fa fa-heart ms-1 me-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+@code {
+    private List<FlashlightSearch> flashlights = new List<FlashlightSearch>();
+
+    [Parameter]
+    public string SearchTags { get; set; }
+
+    [Inject]
+    private IFlashlightProvider FlashlightProvider { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        string serializedObjects = Uri.UnescapeDataString(SearchTags);
+        var tagNames = JsonConvert.DeserializeObject<List<string>>(SearchTags).ToList();
+
+        flashlights = await FlashlightProvider.GetFlashlightsByTags(tagNames);
+        base.OnInitialized();
+    }
+
+    public void ToItem(Flashlight flashlight)
+    {
+        navigationManager.NavigateTo($"/FlashlightData/{flashlight.Name}");
+    }
+}

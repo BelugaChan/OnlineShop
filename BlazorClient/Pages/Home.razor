@@ -1,0 +1,144 @@
+﻿@inject NavigationManager navigationManager
+@page "/"
+@using Newtonsoft.Json;
+
+<div class="row mt-2 ms-1 me-1">
+    <div class="col-lg-3 mt-3">
+        <h4>Flashlights</h4>
+        <ul class="list-group my-4">
+            <li class="list-group-item active" aria-current="true">Фонарики</li>
+            <li class="list-group-item">Лампы</li>
+            <li class="list-group-item">Люстры</li>
+            <li class="list-group-item">Ночники</li>
+            <li class="list-group-item">прожекторы</li>
+        </ul>     
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Tag Search
+        </button>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Tag Search</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="ClearSearchTags"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" @bind="@value" @onkeyup="AddTagForSearch" />
+                        <h5>Added Tags:</h5>
+                        <div class="form-check">
+                            @foreach (var item in tagsForSearch)
+                            {
+                                <label class="form-check-label">#@item;  </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="ClearSearchTags">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SearchByTags">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-lg-9">
+        <div id="carouselExampleControls" class="carousel slide my-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="img/1679137763_design-pibig-info-p-p.jpg" class="d-block img-fluid" alt="first">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/5e568723b8ad397bb817a5344cc804bb.jpg" class="d-block img-fluid" alt="second">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div class="row">
+            @if (flashlights is not null)
+            {
+                @foreach (var item in flashlights)
+                {
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="card h-90 box-shadow my-3">
+                            <a @onclick="() => ToItem(item)"><img class="card-img-top img-fluid" style="height:225px;width:100%" src=@item.PicLink alt="no data..." /></a>
+                            <div class="card-body">
+                                <div class="card-title text-uppercase">
+                                    <a href="" @onclick="() => ToItem(item)" @onclick:preventDefault>@item.Name</a>
+                                </div>
+                                <h5>@item.Cost &#8381;</h5>
+                                <p class="card-text">@item.Description</p>
+                            </div>
+                            <div class="card-body justify-content-around align-items-end d-flex">
+                                <a class="btn itd-btn" href="#" title="Добавить в корзину"><i class="fas fa-shopping-cart ms-1"></i></a>
+                                <a class="btn itd-btn" href="#" title="Сравнить"><i class="fa-solid fa-code-compare me-1"></i></a>
+                                <a class="btn itd-btn" href="#" title="Избранное"><i class="fa fa-heart ms-1 me-1"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <h1>No flashlights!</h1>
+            }      
+        </div>
+    </div>
+</div>
+
+@code{
+    private List<Flashlight> flashlights = new List<Flashlight>();
+    private List<Tag> tags = new List<Tag>();
+    private List<string> tagsForSearch = new List<string>();
+    string value = "";
+    [Inject]
+    private IFlashlightProvider flashlightProvider { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        flashlights = await flashlightProvider.GetFlashlightsAsync();
+        tags = await flashlightProvider.GetFlashlightsTags();
+    }
+
+    public void ToItem(Flashlight flashlight)
+    {
+        navigationManager.NavigateTo($"/FlashlightData/{flashlight.Name}");
+    }
+
+    public void ClearSearchTags()
+    {
+        tagsForSearch.Clear();
+    }
+
+    public async Task AddTagForSearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            var inputTags = value.Split(new char[] {',',' ','.','/'}).ToList();
+            value = "";
+            StateHasChanged();
+            foreach (var tag in inputTags)
+            {
+                if (!tagsForSearch.Contains(tag) && tags.Where(t => t.Name == tag).FirstOrDefault() is not null)
+                {
+                    tagsForSearch.Add(tag);
+                }                
+            }            
+        }
+    }
+
+    public void SearchByTags()
+    {        
+        string serializedObjects = JsonConvert.SerializeObject(tagsForSearch);
+        navigationManager.NavigateTo($"/Flashlights/Search/{Uri.EscapeDataString(serializedObjects)}");
+    }
+}
+

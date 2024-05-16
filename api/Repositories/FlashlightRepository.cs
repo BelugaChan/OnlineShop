@@ -1,7 +1,7 @@
 using api.Data;
-using api.Dtos.Flashlight;
+using api.Dtos.Flashlights;
 using api.Helpers;
-using api.Interfaces;
+using api.Interfaces.Repositories;
 using api.Mappers.Flashlights;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +16,21 @@ namespace api.Repositories
         {
             this.context = context;
         }
+
+        public async Task<List<Tag>> GetFlashlightsTags()
+        {
+            var flashlightTags = await context.Flashlights.Select(t => t.Tags).ToListAsync();
+            var res = new List<Tag>();
+            foreach (var item in flashlightTags)
+            {
+                foreach (var value in item)
+                {
+                    res.Add(value);
+                }                
+            }
+            return res.Select(t => t).Distinct().ToList();
+        }
+
         public async Task<Flashlight> CreateFlashlightAsync(CreateFlashlightRequestDto flashlightRequestDto)
         {
             var flashlight = flashlightRequestDto.ToFlashlightFromCreateDto();
@@ -39,23 +54,23 @@ namespace api.Repositories
             return flashlight;
         }
 
-        public async Task<List<Flashlight>> GetFlashlightsAsync(QueryObject queryObject)
+        public async Task<List<Flashlight>> GetFlashlightsAsync(/*QueryObject queryObject*/)
         {
             var flashlgihts = context.Flashlights.Include(t => t.Tags).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
-            {
-                flashlgihts = flashlgihts.Where(t => t.Name.Contains(queryObject.ItemName));
-            }
+            //if (!string.IsNullOrWhiteSpace(queryObject.ItemName))
+            //{
+            //    flashlgihts = flashlgihts.Where(t => t.Name.Contains(queryObject.ItemName));
+            //}
 
-            if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
-            {
-                if (queryObject.SortBy.ToLower().Equals("cost"))
-                {
-                    flashlgihts = queryObject.IsDescending ? flashlgihts.OrderByDescending(t => t.Cost) 
-                    : flashlgihts.OrderBy(t => t.Cost);
-                }
-            }
+            //if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
+            //{
+            //    if (queryObject.SortBy.ToLower().Equals("cost"))
+            //    {
+            //        flashlgihts = queryObject.IsDescending ? flashlgihts.OrderByDescending(t => t.Cost) 
+            //        : flashlgihts.OrderBy(t => t.Cost);
+            //    }
+            //}
             return await flashlgihts.ToListAsync();
         }
 
@@ -71,9 +86,15 @@ namespace api.Repositories
             return flashlight;
         }
 
+        public async Task<List<Flashlight>> SearchFlashlightsByNameAsync(List<string> names)
+        {
+            var flashlights = context.Flashlights.Include(t => t.Tags).Where(t => names.Contains(t.Name));
+            return await flashlights.ToListAsync();
+        }
+
         public async Task<Flashlight?> SearchForFlashlight(string name)
         {
-            var flashlight = await context.Flashlights.FirstOrDefaultAsync(t => t.Name.Contains(name));
+            var flashlight = await context.Flashlights.Include(t => t.Tags).FirstOrDefaultAsync(x => x.Name.Contains(name));
             if (flashlight is null)
             {
                 return null;

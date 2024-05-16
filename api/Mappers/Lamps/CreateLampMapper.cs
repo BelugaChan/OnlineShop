@@ -1,4 +1,4 @@
-using api.Dtos.Lamp;
+using api.Dtos.Lamps;
 using api.Models;
 
 namespace api.Mappers.Lamps

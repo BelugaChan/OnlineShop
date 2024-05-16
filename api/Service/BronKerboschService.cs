@@ -1,4 +1,4 @@
-﻿using api.Interfaces;
+﻿using api.Interfaces.Services;
 using BronKerboshAlgorithm;
 
 namespace api.Service
@@ -12,14 +12,6 @@ namespace api.Service
             {
                 productGraph.AddProduct(item.Key, item.Value);
             }
-
-            //productGraph.AddProduct("Телевизор", new List<string> { "Электроника", "4K", "Smart TV" });
-            //productGraph.AddProduct("Наушники", new List<string> { "Электроника", "Bluetooth", "Беспроводные" });
-            //productGraph.AddProduct("Ноутбук", new List<string> { "Электроника", "Windows", "SSD", "Intel Core" });
-            //productGraph.AddProduct("Смарт ТВ", new List<string> { "Windows", "3K", "Smart TV" });
-            //productGraph.AddProduct("Телефон", new List<string> { "Android", "SnapDragon" });
-            //var products = productGraph.GetTags();
-
 
             var graph = productGraph.GetGraph();
 

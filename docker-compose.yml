@@ -8,6 +8,8 @@ services:
       dockerfile: api/Dockerfile
     ports:
         - :80
+    environment:
+      - DB_HOST = mssql
     depends_on: 
         - ms-sql-server
   ms-sql-server:

@@ -1,9 +1,9 @@
-using api.Dtos.Nightlight;
-using api.Interfaces;
+using api.Dtos.Nightlights;
 using Microsoft.AspNetCore.Mvc;
 using api.Helpers;
 using api.Mappers.Nightlights;
 using api.Models;
+using api.Interfaces.Repositories;
 
 namespace api.Controllers
 {

@@ -1,7 +1,7 @@
 using api.Data;
-using api.Dtos.Lamp;
+using api.Dtos.Lamps;
 using api.Helpers;
-using api.Interfaces;
+using api.Interfaces.Repositories;
 using api.Mappers.Lamps;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
